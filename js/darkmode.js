@@ -1,27 +1,29 @@
 (function () {
-    const KEY = 'darkMode';
+    var KEY = 'darkMode';
+    var root = document.documentElement; // <html> — luôn tồn tại khi script chạy
 
     function applyDark(on) {
-        document.body.classList.toggle('dark', on);
-        const btn = document.getElementById('dark-mode-btn');
+        root.classList.toggle('dark', on);
+        var btn = document.getElementById('dark-mode-btn');
         if (btn) btn.textContent = on ? '☀️' : '🌙';
     }
 
     function toggle() {
-        const next = !document.body.classList.contains('dark');
+        var next = !root.classList.contains('dark');
         localStorage.setItem(KEY, next ? '1' : '0');
         applyDark(next);
     }
 
-    /* Áp dụng ngay khi script load (trước khi DOM render xong cũng được) */
-    const saved = localStorage.getItem(KEY);
-    if (saved === '1') applyDark(true);
+    // Áp dụng ngay (trước khi DOM vẽ xong) để không bị flash trắng
+    if (localStorage.getItem(KEY) === '1') {
+        root.classList.add('dark');
+    }
 
-    /* Gắn sự kiện sau khi DOM sẵn sàng */
+    // Gắn nút sau khi DOM sẵn sàng
     document.addEventListener('DOMContentLoaded', function () {
-        const btn = document.getElementById('dark-mode-btn');
+        var btn = document.getElementById('dark-mode-btn');
         if (btn) {
-            btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+            btn.textContent = root.classList.contains('dark') ? '☀️' : '🌙';
             btn.addEventListener('click', toggle);
         }
     });
