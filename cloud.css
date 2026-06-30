@@ -1,0 +1,48 @@
+.cloud-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.cloud-panel-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.cloud-panel-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+#userInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#userAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: none;
+}
+#userEmailDisplay { font-weight: bold; }
+.cloud-panel-buttons { display: flex; gap: 10px; }
+#syncStatusMain {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+#cloudInfo {
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.8;
+    display: flex;
+    justify-content: space-between;
+}

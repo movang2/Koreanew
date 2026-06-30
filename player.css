@@ -1,0 +1,97 @@
+.ctrl-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px 0;
+}
+.ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 7px 10px;
+    flex-wrap: wrap;
+}
+.ctrl-group-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 60px;
+    border-right: 1px solid #ccc;
+    padding-right: 8px;
+    margin-right: 2px;
+}
+.ctrl-group button {
+    margin: 0;
+    padding: 6px 12px;
+    width: auto;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.15s;
+}
+.ctrl-group button:hover { opacity: 0.85; }
+.btn-tts-start  { background: #4CAF50; color: white; }
+.btn-tts-stop   { background: #e53935; color: white; }
+.btn-tts-test   { background: #FF9800; color: white; }
+.btn-tts-vocab  { background: #9c27b0; color: white; }
+.btn-vid-rewind { background: #2196F3; color: white; }
+.btn-vid-trans  { background: #f44336; color: white; }
+.btn-state-save { background: #607d8b; color: white; }
+.btn-state-load-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    padding: 6px 12px;
+    background: #78909c;
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.btn-state-load-label:hover { opacity: 0.85; }
+.btn-state-load-label input[type=file] { display: none; }
+.settings-panel {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 6px;
+}
+.settings-toggle {
+    background: none;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    width: auto;
+    margin: 4px 0 0 0;
+}
+.settings-toggle:hover { background: #eee; }
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.settings-row label { font-size: 13px; color: #444; white-space: nowrap; }
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+.reset-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}

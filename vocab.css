@@ -1,0 +1,85 @@
+#history-list, #vocab-list {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    text-align: left;
+    padding: 10px;
+}
+.history-item, .vocab-item {
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.history-item:hover, .vocab-item:hover { background-color: #f0f0f0; }
+.history-item button, .vocab-item button {
+    margin-left: 10px;
+    padding: 2px 5px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.history-item button:hover, .vocab-item button:hover { background-color: #cc0000; }
+.vocab-item-naver {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.vocab-info-item {
+    padding: 5px;
+    margin: 8px 0;
+    background-color: #fff;
+    border-left: 4px solid #4CAF50;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.vocab-info-korean {
+    font-weight: bold;
+    color: #2196F3;
+    font-size: 1.2em;
+}
+.vocab-info-meaning {
+    color: #FF5722;
+    margin-left: 8px;
+    font-size: 1em;
+}
+.vocab-info-time {
+    color: #607D8B;
+    font-size: 0.85em;
+    margin-left: 5px;
+}
+.vocab-info-notebook {
+    color: #9C27B0;
+    font-style: italic;
+    margin-top: 5px;
+}
+#vocab-info-display {
+    font-size: 12px !important;
+}
+#vocab-info-display button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 3px 8px;
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 5px !important;
+    padding: 1px 4px !important;
+}
+#vocab-info-display button:hover { background-color: #388E3C; }
+#vocab-info-display [style*="text-transform: uppercase"] {
+    font-size: 5px !important;
+}
+.clickable-vocab {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+.clickable-vocab:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}

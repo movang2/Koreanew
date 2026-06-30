@@ -1,0 +1,68 @@
+#subtitle-display {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+#subtitle-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    text-align: left;
+    padding: 10px;
+}
+.subtitle-item {
+    padding: 5px;
+    cursor: pointer;
+}
+.subtitle-item:hover { background-color: #f0f0f0; }
+.subtitle-item.active { background-color: #d0e8ff; }
+.subtitle-line { padding: 5px 0; }
+.subtitle-line.current {
+    background-color: #d0e8ff;
+    font-weight: bold;
+}
+.korean-word {
+    color: #0066cc;
+    cursor: pointer;
+}
+.korean-word:hover { text-decoration: underline; }
+.korean-word.clickable {
+    color: #0066cc;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-block;
+}
+.korean-word.clickable:hover {
+    text-decoration: underline;
+    background-color: #f0f0f0;
+}
+.korean-word.learned {
+    background-color: #fff3cd;
+    border-bottom: 1px dotted #ffa500;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    animation: glow 1.5s infinite;
+}
+.vietnamese { color: #cc0000; }
+.vietnamese.translation {
+    color: #cc0000;
+    margin-left: 10px;
+}
+.inline-meaning {
+    font-size: 12px;
+    color: #888;
+    margin-left: 4px;
+}
+#favorite-subtitles {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    text-align: left;
+    padding: 10px;
+}
