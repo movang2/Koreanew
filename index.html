@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoutubeStudy - Học tiếng Hàn qua YouTube</title>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/player.css">
+    <link rel="stylesheet" href="css/subtitle.css">
+    <link rel="stylesheet" href="css/vocab.css">
+    <link rel="stylesheet" href="css/cloud.css">
+    <link rel="stylesheet" href="css/tooltip.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+<!-- ===== ĐĂNG NHẬP & ĐỒNG BỘ CLOUD ===== -->
+<div class="cloud-panel">
+    <div class="cloud-panel-row">
+        <div class="cloud-panel-user">
+            <div id="userInfo">
+                <img id="userAvatar" src="" alt="avatar">
+                <span id="userEmailDisplay"></span>
+            </div>
+            <button id="loginBtnMain" style="padding:8px 20px;background:white;color:#667eea;border:none;border-radius:5px;cursor:pointer;font-weight:bold;">🔐 Đăng nhập Google</button>
+            <button id="logoutBtnMain" style="padding:8px 20px;background:#f44336;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;display:none;">🚪 Đăng xuất</button>
+        </div>
+        <div class="cloud-panel-buttons">
+            <button id="uploadBtn" onclick="uploadToCloud()" style="padding:8px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;" disabled>📤 Upload lên Cloud</button>
+            <button id="downloadBtn" onclick="downloadFromCloud()" style="padding:8px 20px;background:#FF9800;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;" disabled>📥 Tải từ Cloud</button>
+            <button id="deleteCloudBtn" onclick="deleteCloudData()" style="padding:8px 20px;background:#f44336;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;" disabled>🗑️ Xóa dữ liệu Cloud</button>
+        </div>
+    </div>
+    <div id="syncStatusMain">⚡ Chưa đăng nhập</div>
+    <div id="cloudInfo">
+        <span id="lastSyncInfo">Lần đồng bộ cuối: Chưa có</span>
+        <span id="dataSizeInfo">Dung lượng: 0 KB</span>
+    </div>
+</div>
+
+<h1>Video YouTube với Phụ đề, TTS và Từ vựng</h1>
+
+<div class="container">
+    <!-- URL & Phụ đề -->
+    <input type="text" id="video-url" placeholder="Nhập link YouTube (ví dụ: https://www.youtube.com/watch?v=...)">
+    <button onclick="loadVideo()">Tải Video</button>
+    <div id="subtitle-link-container" style="display:none;">
+        <a id="subtitle-link" target="_blank"></a>
+    </div>
+    <br>
+    <input type="file" id="subtitle-file" accept=".srt">
+    <button onclick="loadSubtitles()">Tải Phụ đề</button>
+    <button class="auto-sub-btn" onclick="loadAutoSubtitles()">Tải Phụ đề Tự động</button>
+    <br>
+
+    <!-- Nhóm điều khiển -->
+    <div class="ctrl-groups">
+        <div class="ctrl-group">
+            <span class="ctrl-group-label">🔊 TTS</span>
+            <button class="btn-tts-start" onclick="startReading()">▶ Bắt đầu</button>
+            <button class="btn-tts-stop"  onclick="stopReading()">⏹ Dừng</button>
+            <button class="btn-tts-test"  onclick="testTTS()">🎵 Kiểm tra</button>
+            <button class="btn-tts-vocab" id="vocab-pause-tts-btn" onclick="toggleVocabPauseTTS()">📖 Đọc từ vựng (Tắt)</button>
+        </div>
+        <div class="ctrl-group">
+            <span class="ctrl-group-label">🎬 Video</span>
+            <button class="btn-vid-rewind" onclick="rewindSubtitle()">⏪ Lùi 5 giây</button>
+            <button class="btn-vid-trans"  onclick="translateSRT()">🌐 Dịch phụ đề</button>
+        </div>
+        <div class="ctrl-group">
+            <span class="ctrl-group-label">💾 Dữ liệu</span>
+            <button class="btn-state-save" onclick="saveState()">💾 Lưu trạng thái</button>
+            <label class="btn-state-load-label">
+                📂 Tải trạng thái
+                <input type="file" id="state-file" accept=".json" onchange="loadState()">
+            </label>
+        </div>
+    </div>
+
+    <!-- Cài đặt (thu gọn) -->
+    <button class="settings-toggle" onclick="
+        const p = document.getElementById('settings-panel');
+        const open = p.style.display !== 'none';
+        p.style.display = open ? 'none' : 'block';
+        this.textContent = open ? '⚙️ Cài đặt ▾' : '⚙️ Cài đặt ▴';
+    ">⚙️ Cài đặt ▾</button>
+
+    <div id="settings-panel" class="settings-panel" style="display:none;">
+        <div class="settings-row">
+            <label for="tts-language">🌐 Ngôn ngữ TTS:</label>
+            <select id="tts-language" onchange="updateTTSLanguage(this.value)">
+                <option value="vi-VN">Tiếng Việt</option>
+                <option value="ko-KR">Tiếng Hàn</option>
+            </select>
+        </div>
+        <div class="settings-row">
+            <label for="tts-speed">🏃 Tốc độ TTS:</label>
+            <input type="range" id="tts-speed" min="0.5" max="2.5" step="0.1" value="1.5" onchange="updateTTSSpeed(this.value)" style="width:140px;">
+            <span id="speed-value">1.5</span>
+        </div>
+        <div class="settings-row">
+            <label for="video-volume">📺 Âm lượng Video:</label>
+            <input type="range" id="video-volume" min="0" max="100" value="100" onchange="updateVideoVolume(this.value)" style="width:120px;">
+            <span id="video-volume-value">100</span>
+        </div>
+        <div class="settings-row">
+            <label for="tts-volume">🔈 Âm lượng TTS:</label>
+            <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" onchange="updateTTSVolume(this.value)" style="width:120px;">
+            <span id="tts-volume-value">1.0</span>
+        </div>
+        <div class="settings-row">
+            <label for="subtitle-offset">⏱ Lệch phụ đề (giây):</label>
+            <button onclick="toggleNegativeOffset()" style="width:auto;padding:4px 10px;">-</button>
+            <input type="number" id="subtitle-offset" min="-5" max="5" step="0.1" value="0" style="width:70px;text-align:center;" onchange="updateSubtitleOffset(this.value)">
+            <span id="offset-value">0.0</span>
+            <button onclick="applyOffsetToSubtitles()" style="width:auto;padding:4px 10px;background:#FF9800;color:white;border:none;border-radius:5px;cursor:pointer;">Áp dụng vĩnh viễn</button>
+        </div>
+    </div>
+
+    <!-- Thông tin từ vựng -->
+    <div style="margin-top:20px;border:1px solid #ccc;padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>Thông tin từ vựng đã chọn</h3>
+            <div>
+                <label style="cursor:pointer;">
+                    <input type="checkbox" id="vocab-display-mode" onchange="toggleVocabDisplayMode()" style="margin-right:5px;">
+                    Chỉ hiển thị thông tin (không tra Naver)
+                </label>
+                <button onclick="clearVocabDisplay()" style="margin-left:10px;padding:3px 8px;background-color:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;">Xóa</button>
+            </div>
+        </div>
+        <div id="vocab-info-display" style="margin-top:10px;min-height:80px;border:1px dashed #ccc;padding:10px;background-color:#f8f9fa;">
+            👉 Nhấp vào từ vựng được tô màu trong phụ đề để xem chi tiết
+        </div>
+    </div>
+
+    <!-- Tiến trình dịch -->
+    <div id="translation-progress" style="display:none;">
+        <progress id="progress-bar" value="0" max="100"></progress>
+        <span id="progress-text">Đang dịch... 0%</span>
+    </div>
+</div>
+
+<!-- Video -->
+<div id="video-container">
+    <iframe id="youtube-video" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<!-- Hiển thị phụ đề hiện tại -->
+<div id="subtitle-display"></div>
+
+<!-- Danh sách phụ đề -->
+<div id="subtitle-list"></div>
+
+<!-- Lịch sử xem -->
+<h3>Lịch sử xem</h3>
+<div id="history-list"></div>
+
+<!-- Bật tra từ ngay -->
+<div style="margin-top:20px;">
+    <label>
+        <input type="checkbox" id="instant-lookup-toggle" checked onchange="toggleInstantLookup(this.checked)">
+        Bật tra từ ngay khi nhấn
+    </label>
+    <button onclick="translateAllVocab()">Dịch tất cả từ vựng bằng Google Dịch</button>
+</div>
+
+<!-- Danh sách từ vựng -->
+<h3>Danh sách từ vựng đã tra</h3>
+
+<!-- NotebookLM -->
+<h3>Danh sách từ NotebookLM</h3>
+<textarea id="notebooklm-vocab" rows="10" placeholder="Dán danh sách từ ở đây..."></textarea>
+
+<div style="margin-top:10px;display:flex;align-items:center;gap:5px;">
+    <input type="text" id="chars-to-remove" value="**" placeholder="Nhập ký tự cần xóa (ví dụ: **, >>, ))) — tách bằng dấu phẩy">
+    <button onclick="removeCharacters()">Xóa ký tự</button>
+</div>
+<button onclick="linkVocabToSubtitles()">Liên kết từ vựng với phụ đề</button>
+
+<!-- Chỉnh sửa SRT trực tiếp -->
+<div style="margin-top:15px;border:1px solid #4CAF50;border-radius:8px;padding:10px;background:#f9fff9;">
+    <strong style="color:#2e7d32;">⚙️ Chỉnh sửa SRT trực tiếp</strong>
+    <div style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <label style="white-space:nowrap;font-size:14px;">Số dòng muốn gộp:</label>
+            <input type="number" id="merge-lines-count" value="2" min="2" max="20" style="width:70px;font-size:16px;padding:6px 8px;border:2px solid #2196F3;border-radius:6px;text-align:center;">
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button onclick="mergeSubtitles()" style="background-color:#2196F3;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Gộp dòng</button>
+            <button onclick="previewMergeByPunctuation()" style="background-color:#3b82f6;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🔍 Xem trước gộp câu</button>
+            <button onclick="mergeByPunctuation()" style="background-color:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">📖 Gộp theo dấu chấm</button>
+            <button onclick="mergeByPunctuationAdvanced()" style="background-color:#8b5cf6;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">⚡ Gộp thông minh</button>
+            <button onclick="smartMergeByMeaning()" style="background-color:#7c3aed;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🧠 Gộp theo ngữ nghĩa</button>
+            <button onclick="downloadEditedSRT()" style="background-color:#4CAF50;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Tải SRT đã sửa</button>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:5px;">
+            📖 Gộp theo dấu chấm: gộp đến khi gặp <code>. ! ? …</code> &nbsp;|&nbsp; ⚡ Gộp thông minh: giữ timestamp + lưu metadata gốc &nbsp;|&nbsp; 🧠 Gộp theo ngữ nghĩa: gộp không cần dấu câu (tối đa 4 dòng)
+        </div>
+    </div>
+    <div style="margin-top:8px;">
+        <input type="text" id="chars-remove-srt" value=">>, [음악]" placeholder="Chuỗi cần xóa trong SRT — tách bằng dấu phẩy" style="width:100%;box-sizing:border-box;font-size:14px;padding:8px 10px;border:2px solid #ff9800;border-radius:6px;">
+        <button onclick="removeCharsFromSRT()" style="margin-top:6px;width:100%;background-color:#ff9800;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:14px;">Xóa trong SRT</button>
+    </div>
+</div>
+
+<!-- Danh sách từ đã liên kết -->
+<div id="linked-vocab-list"></div>
+<div style="margin-top:10px;">
+    <button id="vocab-tts-toggle" onclick="toggleVocabTTSMode()">Chế độ đọc từ vựng (Tắt)</button>
+    <button id="start-vocab-tts" onclick="startVocabTTS()" disabled>Bắt đầu đọc từ vựng</button>
+    <button id="pause-vocab-tts" onclick="pauseVocabTTS()" disabled>Tạm dừng</button>
+    <button id="stop-vocab-tts" onclick="stopVocabTTS()" disabled>Dừng hẳn</button>
+</div>
+<div style="margin-bottom:10px;">
+    <label>
+        <input type="checkbox" id="naver-lookup-toggle" onchange="toggleNaverLookup(this.checked)">
+        Bật tra từ trên Naver
+    </label>
+</div>
+
+<div id="vocab-list"></div>
+
+<!-- Phụ đề yêu thích -->
+<h3>Phụ đề yêu thích</h3>
+<button onclick="clearAllFavorites()">Xóa tất cả phụ đề yêu thích</button>
+<div id="favorite-subtitles"></div>
+
+<!-- Reset dữ liệu -->
+<div style="text-align:center;margin:20px 0;">
+    <button onclick="resetToDefault()" style="padding:12px 30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:25px;cursor:pointer;font-size:16px;font-weight:500;box-shadow:0 4px 15px rgba(102,126,234,0.3);transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        🔄 Reset Tất Cả Dữ Liệu
+    </button>
+</div>
+
+<!-- JS: thứ tự load quan trọng -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/tooltip.js"></script>
+<script src="js/tts.js"></script>
+<script src="js/subtitles.js"></script>
+<script src="js/subtitleTranslate.js"></script>
+<script src="js/subtitleEditor.js"></script>
+<script src="js/vocab.js"></script>
+<script src="js/notebooklm.js"></script>
+<script src="js/favorites.js"></script>
+<script src="js/history.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/youtube.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Firebase Cloud Sync (ES Module) -->
+<script type="module" src="js/cloudSync.js"></script>
+
+</body>
+</html>
