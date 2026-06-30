@@ -1,0 +1,22 @@
+@media (max-width: 600px) {
+    body {
+        margin: 10px;
+    }
+    input, button {
+        padding: 6px;
+        font-size: 14px;
+    }
+    #subtitle-display {
+        font-size: 16px;
+    }
+    .control-buttons {
+        flex-direction: column;
+    }
+    .cloud-panel-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .cloud-panel-buttons {
+        flex-wrap: wrap;
+    }
+}
