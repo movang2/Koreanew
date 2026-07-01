@@ -153,3 +153,31 @@ html.dark div[style*="border:1px dashed"] {
 }
 
 html.dark #subtitle-link { color: #7eb8f7; }
+
+/* ===== Override inline color:#333 trong vocab info (NotebookLM, Google Dịch) ===== */
+html.dark #vocab-info-display div[style*="color:#333"],
+html.dark #vocab-info-display div[style*="color: #333"],
+html.dark #fullscreen-vocab-content div[style*="color:#333"],
+html.dark #fullscreen-vocab-content div[style*="color: #333"] {
+    color: #d0d0d0 !important;
+}
+
+/* Background tím của NotebookLM source row trong dark mode */
+html.dark #vocab-info-display div[style*="background:#9c27b010"],
+html.dark #vocab-info-display div[style*="background: #9c27b010"],
+html.dark #fullscreen-vocab-content div[style*="background:#9c27b010"] {
+    background: rgba(156, 39, 176, 0.25) !important;
+}
+
+/* Background xanh của Google Dịch source row trong dark mode */
+html.dark #vocab-info-display div[style*="background:#4285f410"],
+html.dark #vocab-info-display div[style*="background: #4285f410"],
+html.dark #fullscreen-vocab-content div[style*="background:#4285f410"] {
+    background: rgba(66, 133, 244, 0.2) !important;
+}
+
+/* Border top giữa các source */
+html.dark #vocab-info-display div[style*="border-top:1px solid #eee"],
+html.dark #vocab-info-display div[style*="border-top: 1px solid #eee"] {
+    border-top-color: #444 !important;
+}
