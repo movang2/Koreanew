@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="css/tooltip.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/darkmode.css">
-    <link rel="stylesheet" href="css/fullscreen.css">
 
     <!-- Dark mode: load trước DOM để tránh flash trắng -->
     <script src="js/darkmode.js"></script>
@@ -259,27 +258,9 @@
 <script src="js/storage.js"></script>
 <script src="js/youtube.js"></script>
 <script src="js/app.js"></script>
-<script src="js/fullscreen.js"></script>
 
 <!-- Firebase Cloud Sync (ES Module) -->
 <script type="module" src="js/cloudSync.js"></script>
-
-<!-- ===== TOÀN MÀN HÌNH ===== -->
-<div class="fullscreen-video-wrapper" id="fullscreen-video-wrapper">
-    <div class="fullscreen-video-container">
-        <!-- iframe #youtube-video sẽ được di chuyển vào đây khi bật fullscreen -->
-    </div>
-    <div class="fullscreen-vocab-panel" id="fullscreen-vocab-panel">
-        <div style="font-size:12px;color:#aaa;margin-bottom:8px;">📖 THÔNG TIN TỪ VỰNG</div>
-        <div id="fullscreen-vocab-content">👆 Nhấp vào từ màu xanh trong phụ đề để xem chi tiết</div>
-    </div>
-    <div class="fullscreen-subtitle-panel" id="fullscreen-subtitle-panel">
-        <div id="fullscreen-subtitle-content">Chưa có phụ đề</div>
-    </div>
-</div>
-
-<button class="fullscreen-close-btn" id="fullscreen-close-btn">×</button>
-<button id="enter-fullscreen-btn">🖥️ Chế độ xem phim</button>
 
 </body>
 </html>
