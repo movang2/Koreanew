@@ -124,6 +124,66 @@ function displayVocabInfo(word, existingVocab, notebookVocab) {
     container.innerHTML = html;
 }
 
+function displayVocabInfoMultiple(googleVocabs, notebookMatches) {
+    const container = document.getElementById("vocab-info-display");
+    if (!container) return;
+
+    // Gộp tất cả từ, tránh trùng
+    const wordMap = new Map();
+    notebookMatches.forEach(m => {
+        wordMap.set(m.word, { word: m.word, sources: [{ type: 'notebook', icon: '📔', label: 'NotebookLM', meaning: m.meaning, color: '#9c27b0' }] });
+    });
+    googleVocabs.forEach(v => {
+        if (wordMap.has(v.word)) {
+            const entry = wordMap.get(v.word);
+            const isDup = entry.sources.some(s => s.meaning === v.meaning);
+            if (!isDup) entry.sources.push({ type: 'google', icon: '🌐', label: 'Google Dịch', meaning: v.meaning, color: '#4285f4' });
+        } else {
+            const nb = notebookMatches.find(m => m.word === v.word);
+            const sources = [];
+            if (nb) sources.push({ type: 'notebook', icon: '📔', label: 'NotebookLM', meaning: nb.meaning, color: '#9c27b0' });
+            sources.push({ type: 'google', icon: '🌐', label: 'Google Dịch', meaning: v.meaning, color: '#4285f4' });
+            wordMap.set(v.word, { word: v.word, sources });
+        }
+    });
+
+    const entries = [...wordMap.values()];
+    if (entries.length === 0) return;
+
+    let html = '';
+    entries.forEach((entry, ei) => {
+        const borderColor = entry.sources.some(s => s.type === 'notebook') ? '#9c27b0' : '#4285f4';
+        html += `<div class="vocab-info-item" style="border-left-color:${borderColor};padding:12px;${ei > 0 ? 'margin-top:8px;border-top:2px solid #f0f0f0;' : ''}">`;
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:bold;color:#2196F3;">${entry.word}</span>
+            <span style="background:${borderColor};color:white;padding:2px 6px;border-radius:9px;font-size:9px;">${entry.sources.length > 1 ? '🥇 ' + entry.sources.length + ' nguồn' : entry.sources[0].label}</span>
+        </div>`;
+        entry.sources.forEach((source, si) => {
+            html += `<div style="margin-bottom:${si < entry.sources.length - 1 ? '6px' : '0'};background:${source.color}10;border-radius:8px;padding:6px;">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+                    <span style="font-size:10px;">${source.icon}</span>
+                    <span style="color:${source.color};font-weight:bold;font-size:9px;text-transform:uppercase;">${source.label}</span>
+                </div>
+                <div style="color:#333;margin-left:15px;line-height:1.4;word-break:break-word;font-size:11px;">${source.meaning}</div>
+            </div>`;
+        });
+        html += `<div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;">
+            <button onclick="openNaverDict('${entry.word}')" style="background:#03c75a;color:white;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:10px;">🇰🇷 Naver</button>
+            <button onclick="fetchGoogleTranslate('${entry.word}')" style="background:#4285f4;color:white;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:10px;">🌐 Dịch lại</button>
+        </div>`;
+        html += '</div>';
+    });
+
+    // Header tổng hợp nếu có nhiều từ
+    if (entries.length > 1) {
+        html = `<div style="background:#e8f5e9;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#2e7d32;font-weight:bold;">
+            🔤 ${entries.length} từ vựng trong câu này
+        </div>` + html;
+    }
+
+    container.innerHTML = html;
+}
+
 function findWordAppearances(word) {
     const result = [];
     const cleanWord = word.replace(/[^\p{Script=Hangul}]+/gu, "").trim();
