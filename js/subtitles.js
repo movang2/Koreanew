@@ -75,17 +75,28 @@ function updateSubtitleDisplay(index) {
     const startIndex = Math.max(0, index - 2);
     const endIndex = Math.min(subtitleData.length - 1, index + 2);
     let subtitleContent = "";
-    const notebookVocab = document.getElementById("notebooklm-vocab").value
+
+    // Tất cả từ đã biết nghĩa (Google Dịch + thủ công)
+    const knownWords = vocabList
+        .filter(v => v.meaning && v.meaning !== "Đang tra cứu...")
+        .map(v => v.word);
+
+    // Từ trong NotebookLM
+    const notebookWords = document.getElementById("notebooklm-vocab").value
         .split("\n").filter(line => line.trim())
-        .map(line => line.split(":")[0]?.trim()).filter(korean => korean);
+        .map(line => line.split(":")[0]?.trim()).filter(Boolean);
+
+    const allHighlightWords = new Set([...knownWords, ...notebookWords]);
 
     for (let i = startIndex; i <= endIndex; i++) {
         const sub = subtitleData[i];
-        const linkedVocab = vocabList.find(v => v.savedIndexes && v.savedIndexes.includes(i));
         const highlightedKoreanText = sub.koreanText.split(/\s+/).map(word => {
             const cleanWord = word.replace(/[^\p{Script=Hangul}]+/gu, "").trim();
-            if (linkedVocab && cleanWord.includes(linkedVocab.word)) {
-                return `<span class="korean-word learned" style="background-color:#ffeb3b;font-weight:bold;border-radius:4px;padding:2px 6px;">${word}</span>`;
+            if (!cleanWord) return word;
+            // Highlight nếu từ trong câu chứa bất kỳ từ vựng đã biết
+            const matched = [...allHighlightWords].some(vw => vw && cleanWord.includes(vw));
+            if (matched) {
+                return `<span class="korean-word learned" style="background-color:#ffeb3b;font-weight:bold;border-radius:4px;padding:2px 6px;cursor:pointer;" onclick="handleWordClick('${cleanWord}', ${i})">${word}</span>`;
             }
             return `<span class="korean-word" onclick="handleWordClick('${cleanWord}', ${i})">${word}</span>`;
         }).join(" ");
@@ -116,15 +127,30 @@ function syncSubtitles() {
         currentSubtitleIndex = nextIndex;
         updateSubtitleDisplay(currentSubtitleIndex);
 
-        const autoVocabs = vocabList
-            .filter(v => v.savedIndexes && v.savedIndexes.includes(currentSubtitleIndex) && v.isLinked)
-            .sort((a, b) => (b.isLinked ? 1 : 0) - (a.isLinked ? 1 : 0));
-        if (autoVocabs.length > 0) {
-            const wordData = autoVocabs[0];
-            const notebookVocab = getNotebookVocabInfo(wordData.word);
-            displayVocabInfo(wordData.word, wordData, notebookVocab);
+        // Tìm tất cả từ vựng đã biết nghĩa xuất hiện trong câu hiện tại
+        const currentText = nextSubtitle.koreanText || "";
+        const matchedVocabs = vocabList.filter(v =>
+            v.meaning && v.meaning !== "Đang tra cứu..." && v.word && currentText.includes(v.word)
+        );
+        // Kiểm tra thêm từ NotebookLM trong câu
+        const notebookText = document.getElementById("notebooklm-vocab").value;
+        const notebookMatches = notebookText.split('\n').filter(l => l.trim()).reduce((acc, line) => {
+            const word = line.split(':')[0]?.trim();
+            if (word && currentText.includes(word)) {
+                const meaning = line.split(':').slice(1).join(':').trim();
+                if (!acc.find(x => x.word === word)) acc.push({ word, meaning, fromNotebook: true });
+            }
+            return acc;
+        }, []);
+
+        if (matchedVocabs.length > 0 || notebookMatches.length > 0) {
+            if (typeof displayVocabInfoMultiple === 'function') {
+                displayVocabInfoMultiple(matchedVocabs, notebookMatches);
+            }
         }
 
+        // TTS pause khi gặp từ đã liên kết
+        const autoVocabs = matchedVocabs.filter(v => v.isLinked).concat(notebookMatches.slice(0, 1));
         if (vocabPauseTTSEnabled && autoVocabs.length > 0 && currentSubtitleIndex !== lastVocabPauseIndex && !isVocabPauseSpeaking) {
             lastVocabPauseIndex = currentSubtitleIndex;
             triggerVocabPauseTTS(autoVocabs[0]);
