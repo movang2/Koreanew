@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/tooltip.css">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/darkmode.css">
+    <link rel="stylesheet" href="css/fullscreen.css">
 
     <!-- Dark mode: load trước DOM để tránh flash trắng -->
     <script src="js/darkmode.js"></script>
@@ -192,20 +193,30 @@
 <div style="margin-top:15px;border:1px solid #4CAF50;border-radius:8px;padding:10px;background:#f9fff9;">
     <strong style="color:#2e7d32;">⚙️ Chỉnh sửa SRT trực tiếp</strong>
     <div style="margin-top:8px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <label style="white-space:nowrap;font-size:14px;">Số dòng muốn gộp:</label>
-            <input type="number" id="merge-lines-count" value="2" min="2" max="20" style="width:70px;font-size:16px;padding:6px 8px;border:2px solid #2196F3;border-radius:6px;text-align:center;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="white-space:nowrap;font-size:13px;">Số dòng gộp:</label>
+                <input type="number" id="merge-lines-count" value="2" min="2" max="20" style="width:60px;font-size:14px;padding:5px 7px;border:2px solid #2196F3;border-radius:6px;text-align:center;">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="white-space:nowrap;font-size:13px;">⚠️ Giới hạn ký tự/câu:</label>
+                <input type="number" id="smart-merge-max-chars" value="80" min="20" max="300" style="width:65px;font-size:14px;padding:5px 7px;border:2px solid #f59e0b;border-radius:6px;text-align:center;" title="Tối đa bao nhiêu ký tự mỗi câu sau khi gộp. Khuyến nghị: 60-100">
+                <span style="font-size:11px;color:#888;">ký tự</span>
+            </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
             <button onclick="mergeSubtitles()" style="background-color:#2196F3;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Gộp dòng</button>
-            <button onclick="previewMergeByPunctuation()" style="background-color:#3b82f6;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🔍 Xem trước gộp câu</button>
+            <button onclick="previewMergeByPunctuation()" style="background-color:#3b82f6;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🔍 Xem trước</button>
             <button onclick="mergeByPunctuation()" style="background-color:#10b981;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">📖 Gộp theo dấu chấm</button>
             <button onclick="mergeByPunctuationAdvanced()" style="background-color:#8b5cf6;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">⚡ Gộp thông minh</button>
-            <button onclick="smartMergeByMeaning()" style="background-color:#7c3aed;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🧠 Gộp theo ngữ nghĩa</button>
-            <button onclick="downloadEditedSRT()" style="background-color:#4CAF50;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">Tải SRT đã sửa</button>
+            <button onclick="smartMergeByMeaning()" style="background-color:#7c3aed;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">🧠 Gộp ngữ nghĩa</button>
+            <button onclick="splitLongSubtitles()" style="background-color:#ef4444;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">✂️ Tách câu dài</button>
+            <button onclick="downloadEditedSRT()" style="background-color:#4CAF50;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;">💾 Tải SRT</button>
         </div>
-        <div style="font-size:11px;color:#888;margin-top:5px;">
-            📖 Gộp theo dấu chấm: gộp đến khi gặp <code>. ! ? …</code> &nbsp;|&nbsp; ⚡ Gộp thông minh: giữ timestamp + lưu metadata gốc &nbsp;|&nbsp; 🧠 Gộp theo ngữ nghĩa: gộp không cần dấu câu (tối đa 4 dòng)
+        <div style="font-size:11px;color:#888;margin-top:6px;line-height:1.6;">
+            📖 <b>Gộp theo dấu chấm</b>: gộp đến <code>. ! ? …</code>, cắt khi vượt giới hạn ký tự &nbsp;|&nbsp;
+            🧠 <b>Gộp ngữ nghĩa</b>: nhận diện đổi người nói (<code>>></code>), giới hạn ký tự cứng &nbsp;|&nbsp;
+            ✂️ <b>Tách câu dài</b>: tách những câu đã vượt giới hạn ký tự
         </div>
     </div>
     <div style="margin-top:8px;">
@@ -258,9 +269,27 @@
 <script src="js/storage.js"></script>
 <script src="js/youtube.js"></script>
 <script src="js/app.js"></script>
+<script src="js/fullscreen.js"></script>
 
 <!-- Firebase Cloud Sync (ES Module) -->
 <script type="module" src="js/cloudSync.js"></script>
+
+<!-- ===== TOÀN MÀN HÌNH ===== -->
+<div class="fullscreen-video-wrapper" id="fullscreen-video-wrapper">
+    <div class="fullscreen-video-container">
+        <!-- iframe #youtube-video sẽ được di chuyển vào đây khi bật fullscreen -->
+    </div>
+    <div class="fullscreen-vocab-panel" id="fullscreen-vocab-panel">
+        <div style="font-size:12px;color:#aaa;margin-bottom:8px;">📖 THÔNG TIN TỪ VỰNG</div>
+        <div id="fullscreen-vocab-content">👆 Nhấp vào từ màu xanh trong phụ đề để xem chi tiết</div>
+    </div>
+    <div class="fullscreen-subtitle-panel" id="fullscreen-subtitle-panel">
+        <div id="fullscreen-subtitle-content">Chưa có phụ đề</div>
+    </div>
+</div>
+
+<button class="fullscreen-close-btn" id="fullscreen-close-btn">×</button>
+<button id="enter-fullscreen-btn">🖥️ Chế độ xem phim</button>
 
 </body>
 </html>
